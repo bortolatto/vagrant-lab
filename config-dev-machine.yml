@@ -1,0 +1,34 @@
+---
+# config-dev-machine.yml
+
+- hosts: all
+  become: true
+  tasks:
+    - name: Adicionar repositorio oficial do docker
+      yum_repository: 
+        name: docker-repo
+        baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+        description: "A docker official repo"
+        enabled: yes
+        gpgcheck: no
+
+    - name: Instalar o docker
+      yum:
+        name: docker-ce
+        state: present    
+        disable_gpg_check: yes
+        enablerepo: docker-repo
+
+    - name: Habilitar o serviço do docker
+      service:
+        name: docker
+        enabled: yes
+        state: started    
+
+    - name: Adicionar usuário vagrant ao docker group
+      user: 
+        name: vagrant
+        groups: docker    
+
+    - name: Rodar um container apache para ver o resultado na tela
+      command: docker run -d -p 8080:80 --name web httpd:2.4
